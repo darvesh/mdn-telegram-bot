@@ -34,7 +34,6 @@ export const search = async (
 		const result: MDNResponse = JSON.parse("{" + text + "}");
 		return result.documents;
 	} catch (error) {
-		// console.log(error.message);
 		return [];
 	}
 };
@@ -47,7 +46,7 @@ const escapables = {
 	"'": "&#39;",
 	'"': "&quot;"
 };
-const escapeHTML = (s: string) =>
+export const escapeHTML = (s: string) =>
 	s.replace(/<|>|&|"|'/g, r => escapables[r as keyof typeof escapables] || r);
 
 const code = (s: string) => `<code>${s}</code>`;
@@ -55,16 +54,18 @@ const bold = (s: string) => `<b>${s}</b>`;
 const italic = (s: string) => `<i>${s}</i>`;
 
 const replaceAt = (str: string) => str.replace(/@/g, code("@"));
-const replaceMark = (str: string) => str.replace(/<\/?.*>/g, "");
+const replaceTag = (str: string) => str.replace(/<\/?.*>/g, "");
+export const replaceGtAndLt = (str: string) =>
+	str.replace(/(<\/?)(.*)(>)/, "$2(tag)");
 export const applyTemplate = ({
 	title,
 	excerpt,
 	slug
 }: MDNResponse["documents"][0]): string => {
-	const name = pipe(replaceAt, bold)(title);
+	const name = pipe(replaceAt, escapeHTML, bold)(title);
 	const link = escapeHTML(`${MDN}/${slug}`);
 	const description = pipe(
-		replaceMark,
+		replaceTag,
 		escapeHTML,
 		italic,
 		replaceAt

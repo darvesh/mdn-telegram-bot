@@ -2,7 +2,7 @@ import { Telegraf } from "telegraf";
 import { InlineQueryResultArticle } from "telegraf/typings/telegram-types";
 
 import { BOT_TOKEN } from "./config";
-import { search, applyTemplate } from "./helpers";
+import { search, applyTemplate, replaceGtAndLt } from "./helpers";
 
 const bot = new Telegraf(BOT_TOKEN);
 
@@ -15,7 +15,7 @@ bot.on("inline_query", async context => {
 			return {
 				id: String(index),
 				type: "article",
-				title: doc.title,
+				title: replaceGtAndLt(doc.title),
 				input_message_content: {
 					parse_mode: "HTML",
 					message_text: formattedMessage,

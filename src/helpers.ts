@@ -54,7 +54,12 @@ const bold = (s: string) => `<b>${s}</b>`;
 const italic = (s: string) => `<i>${s}</i>`;
 
 const replaceAt = (str: string) => str.replace(/@/g, code("@"));
-const replaceTag = (str: string) => str.replace(/<\/?.*>/g, "");
+const replaceTagAndUnicode = (str: string) =>
+	str
+		.replace(/<\/?mark>/g, "") //removes mark tag
+		.replace(/(u[A-Z0-9]{4})/g, " ") // removes unicode like characters
+		.replace(/\s+/g, " ") // removes extra normal spaces
+		.replace(/{([[:blank:]      　        ]+)}/g, " "); //unicode space
 export const replaceGtAndLt = (str: string) =>
 	str.replace(/(<\/?)(.*)(>)/, "$2(tag)");
 export const applyTemplate = ({
@@ -65,10 +70,10 @@ export const applyTemplate = ({
 	const name = pipe(replaceAt, escapeHTML, bold)(title);
 	const link = escapeHTML(`${MDN}/${slug}`);
 	const description = pipe(
-		replaceTag,
+		replaceTagAndUnicode,
 		escapeHTML,
 		italic,
 		replaceAt
 	)(excerpt);
-	return `⌕ ${name}\n${description}\n\n${link}`;
+	return `⌕ ${name}\n${description}...\n\n${link}`;
 };
